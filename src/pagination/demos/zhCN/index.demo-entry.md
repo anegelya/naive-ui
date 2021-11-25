@@ -15,9 +15,12 @@ disabled
 item-count
 prev
 prefix
+page-size-option
 ```
 
-## Props
+## API
+
+### Pagination Props
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -27,7 +30,7 @@ prefix
 | prev | `(info: PaginationInfo) => VNodeChild` | `undefined` | 上一页 |
 | item-count | `number` | `undefined` | 总条数 |
 | page-count | `number` | `1` | 总页数 |
-| page-sizes | `Array<number>` | `['10']` | 每页条数 |
+| page-sizes | `Array<number \| PaginationSizeOption>` | `[10]` | 每页条数， 可自定义 |
 | page-size | `number` | `undefined` | 受控模式下的分页大小 |
 | page-slot | `number` | `9` | 页码显示的个数 |
 | page | `number` | `undefined` | 受控模式下的当前页 |
@@ -38,7 +41,7 @@ prefix
 | on-update:page | `(page: number) => void` | `undefined` | 当前页发生改变时的回调函数 |
 | on-update:page-size | `(pageSize: number) => void` | `undefined` | 当前分页大小发生改变时的回调函数 |
 
-## Slots
+### Pagination Slots
 
 | 名称   | 参数                     | 说明     |
 | ------ | ------------------------ | -------- |
@@ -46,8 +49,6 @@ prefix
 | prev   | `(info: PaginationInfo)` | 上一页   |
 | prefix | `(info: PaginationInfo)` | 分页前缀 |
 | suffix | `(info: PaginationInfo)` | 分页后缀 |
-
-## API
 
 ### PaginationInfo Type
 

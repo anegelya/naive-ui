@@ -77,6 +77,7 @@ export const dataTableProps = {
     type: Boolean as PropType<boolean | undefined>,
     default: undefined
   },
+  striped: Boolean,
   scrollX: [Number, String] as PropType<string | number>,
   defaultCheckedRowKeys: {
     type: Array as PropType<RowKey[]>,
@@ -244,7 +245,7 @@ export default defineComponent({
     const bodyWidthRef = ref<number | null>(null)
     const scrollPartRef = ref<'head' | 'body'>('body')
     const mainTableInstRef = ref<MainTableRef | null>(null)
-    const { rowsRef, colsRef, dataRelatedColsRef, hasEllpisisRef } =
+    const { rowsRef, colsRef, dataRelatedColsRef, hasEllipsisRef } =
       useGroupHeader(props)
     const {
       treeMateRef,
@@ -258,11 +259,12 @@ export default defineComponent({
       mergedSortStateRef,
       firstContentfulColIndexRef,
       doUpdateFilters,
-      doUpdateSorter,
+      deriveNextSorter,
       filter,
       filters,
       clearFilter,
       clearFilters,
+      clearSorter,
       page,
       sort
     } = useTableData(props, { dataRelatedColsRef })
@@ -312,7 +314,7 @@ export default defineComponent({
         props.virtualScroll ||
         props.flexHeight ||
         props.maxHeight !== undefined ||
-        hasEllpisisRef.value
+        hasEllipsisRef.value
       ) {
         return 'fixed'
       }
@@ -353,6 +355,7 @@ export default defineComponent({
       summaryRef: toRef(props, 'summary'),
       virtualScrollRef: toRef(props, 'virtualScroll'),
       rowPropsRef: toRef(props, 'rowProps'),
+      stripedRef: toRef(props, 'striped'),
       checkOptionsRef: computed(() => {
         const { value: selectionColumn } = selectionColumnRef
         return selectionColumn?.options
@@ -379,7 +382,7 @@ export default defineComponent({
       headerCheckboxDisabledRef,
       syncScrollState,
       doUpdateFilters,
-      doUpdateSorter,
+      deriveNextSorter,
       doCheck,
       doUncheck,
       doCheckAll,
@@ -392,10 +395,11 @@ export default defineComponent({
     const exposedMethods: DataTableInst = {
       filter,
       filters,
-      clearFilter,
       clearFilters,
+      clearSorter,
       page,
-      sort
+      sort,
+      clearFilter
     }
     return {
       mainTableInstRef,
@@ -443,6 +447,9 @@ export default defineComponent({
             loadingColor,
             loadingSize,
             opacityLoading,
+            tdColorStriped,
+            tdColorStripedModal,
+            tdColorStripedPopover,
             [createKey('fontSize', size)]: fontSize,
             [createKey('thPadding', size)]: thPadding,
             [createKey('tdPadding', size)]: tdPadding
@@ -484,7 +491,10 @@ export default defineComponent({
           '--sorter-size': sorterSize,
           '--loading-size': loadingSize,
           '--loading-color': loadingColor,
-          '--opacity-loading': opacityLoading
+          '--opacity-loading': opacityLoading,
+          '--td-color-striped': tdColorStriped,
+          '--td-color-striped-modal': tdColorStripedModal,
+          '--td-color-striped-popover': tdColorStripedPopover
         }
       })
     }

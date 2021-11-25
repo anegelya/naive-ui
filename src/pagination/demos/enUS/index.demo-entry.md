@@ -15,9 +15,12 @@ disabled
 item-count
 prev
 prefix
+page-size-option
 ```
 
-## Props
+## API
+
+### Pagination Props
 
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
@@ -27,7 +30,7 @@ prefix
 | prev | `(info: PaginationInfo) => VNodeChild` | `undefined` | Previous page. |
 | item-count | `number` | `undefined` | Total number. |
 | page-count | `number` | `1` | Total pages. |
-| page-sizes | `Array<number>` | `['10']` | Number of items per page. |
+| page-sizes | `Array<number \| PaginationSizeOption>` | `[10]` | Number of items per page, can be customize.  |
 | page-size | `number` | `undefined` | Page size in controlled mode. |
 | page-slot | `number` | `9` | The number of pages displayed. |
 | page | `number` | `undefined` | Current page in controlled mode. |
@@ -38,7 +41,7 @@ prefix
 | on-update:page | `(page: number) => void` | `undefined` | Callback function when the current page changes. |
 | on-update:page-size | `(pageSize: number) => void` | `undefined` | Callback function when the current page size changes. |
 
-## Slots
+### Pagination Slots
 
 | Name   | Parameters               | Description    |
 | ------ | ------------------------ | -------------- |
@@ -46,8 +49,6 @@ prefix
 | prev   | `(info: PaginationInfo)` | Previous page. |
 | prefix | `(info: PaginationInfo)` | Page prefix.   |
 | suffix | `(info: PaginationInfo)` | Page suffix.   |
-
-## API
 
 ### PaginationInfo Type
 

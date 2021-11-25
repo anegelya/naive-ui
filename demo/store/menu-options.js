@@ -138,6 +138,11 @@ export function createDocumentationMenuOptions ({ lang, theme, mode }) {
           en: 'Create Themed Component',
           zh: '创建适配主题的组件',
           path: '/theme'
+        },
+        {
+          en: 'Third-Party Libraries',
+          zh: '社区精选资源',
+          path: '/community'
         }
         // {
         //   en: 'Experimental Features',
@@ -651,6 +656,25 @@ export function createComponentMenuOptions ({ lang, theme, mode }) {
           zh: '间距',
           enSuffix: true,
           path: '/space'
+        }
+      ]
+    }),
+    appendCounts({
+      zh: '工具组件',
+      en: 'Utility Components',
+      type: 'group',
+      children: [
+        {
+          en: 'Collapse Transition',
+          zh: '折叠渐变',
+          enSuffix: true,
+          path: '/collapse-transition'
+        },
+        {
+          en: 'Scrollbar',
+          zh: '滚动条',
+          enSuffix: true,
+          path: '/scrollbar'
         }
       ]
     }),

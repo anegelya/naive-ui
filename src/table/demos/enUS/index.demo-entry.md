@@ -12,13 +12,14 @@ bordered
 size
 single-column
 single-line
+striped
 ```
 
 ## Components
 
 You can use `n-table`, `n-thead`, `n-tbody`, `n-tr`, `n-th` and `n-td`. At most time you won't need the components after `n-table`. They can be used to reduce the granularity of dependency collecting.
 
-## Props
+## API
 
 ### Table Props
 
@@ -29,3 +30,4 @@ You can use `n-table`, `n-thead`, `n-tbody`, `n-tr`, `n-th` and `n-td`. At most 
 | single-column | `boolean` | `false` | Whether to display as a column (when `true`, each column has `border-right`). |
 | single-line | `boolean` | `true` | Whether to display as a line (when `true`, each row has `border-bottom`). |
 | size | `'small' \| 'medium' \| 'large'` | `'medium'` | Table size. |
+| striped | `boolean` | `false` | Whether to show zebra stripes on rows. |

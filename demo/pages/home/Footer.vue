@@ -20,13 +20,8 @@
         <n-button text tag="a" target="_blank" href="https://www.xicons.org">{{
           t('icons')
         }}</n-button>
-        <n-button
-          text
-          tag="a"
-          target="_blank"
-          href="https://github.com/jekip/naive-ui-admin"
-        >
-          Naive UI Admin
+        <n-button text @click="push('/docs/community')">
+          {{ t('libraries') }}
         </n-button>
       </div>
       <div class="footer-links-col">
@@ -63,7 +58,9 @@
           <template #trigger>
             <n-button text>{{ t('dingTalk') }}</n-button>
           </template>
-          {{ t('dingTalkGroupChat') }} 33482509
+          {{ t('dingTalkGroupChat') }} 1
+          {{ t('memberLimitReached') }} 33482509<br />
+          {{ t('dingTalkGroupChat') }} 2 35886835
         </n-tooltip>
       </div>
       <div class="footer-links-col footer-links-col--last">
@@ -114,8 +111,10 @@ export default {
           tusimple: '图森未来',
           joinUs: '加入我们',
           icons: '图标库',
+          libraries: '社区精选资源',
           dingTalk: '钉钉',
           dingTalkGroupChat: '钉钉交流群',
+          memberLimitReached: '（已满）',
           reportBug: '报告 Bug',
           joinUsLink: 'https://app.mokahr.com/campus_apply/tusenweilai/3232#/'
         },
@@ -130,8 +129,10 @@ export default {
           tusimple: 'TuSimple',
           joinUs: 'Join Us',
           icons: 'Icon Library',
+          libraries: 'Third-Party Libraries',
           dingTalk: 'DingTalk',
           dingTalkGroupChat: 'DingTalk Group Chat',
+          memberLimitReached: '(Member limit reached)',
           reportBug: 'Report Bug',
           joinUsLink:
             'https://boards.greenhouse.io/tusimplerelocationjobs/jobs/5137805002?gh_src=7908a9242us'

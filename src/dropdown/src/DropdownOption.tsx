@@ -24,9 +24,9 @@ import { TreeNode } from 'treemate'
 import {
   DropdownGroupOption,
   DropdownIgnoredOption,
-  DropdownOption,
-  DropdownOptionProps
+  DropdownOption
 } from './interface'
+import { happensIn } from 'seemly'
 
 interface NDropdownOptionInjection {
   enteringSubmenuRef: Ref<boolean>
@@ -56,7 +56,7 @@ export default defineComponent({
       type: String as PropType<FollowerPlacement>,
       default: 'right-start'
     },
-    props: Object as PropType<DropdownOptionProps>
+    props: Object as PropType<HTMLAttributes>
   },
   setup (props) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -70,14 +70,17 @@ export default defineComponent({
       animatedRef,
       mergedShowRef,
       renderLabelRef,
-      renderIconRef
+      renderIconRef,
+      labelFieldRef,
+      childrenFieldRef
     } = NDropdown
     const NDropdownOption = inject(dropdownOptionInjectionKey, null)
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const NDropdownMenu = inject(dropdownMenuInjectionKey)!
     const rawNodeRef = computed(() => props.tmNode.rawNode)
     const hasSubmenuRef = computed(() => {
-      return isSubmenuNode(props.tmNode.rawNode)
+      const { value: childrenField } = childrenFieldRef
+      return isSubmenuNode(props.tmNode.rawNode, childrenField)
     })
     const mergedDisabledRef = computed(() => {
       const { disabled } = props.tmNode
@@ -141,7 +144,7 @@ export default defineComponent({
       const { relatedTarget } = e
       if (
         relatedTarget &&
-        !(relatedTarget as HTMLElement).hasAttribute('__dropdown-option')
+        !happensIn({ target: relatedTarget }, 'dropdownOption')
       ) {
         hoverKeyRef.value = null
       }
@@ -159,6 +162,7 @@ export default defineComponent({
       }
     }
     return {
+      labelField: labelFieldRef,
       renderLabel: renderLabelRef,
       renderIcon: renderIconRef,
       siblingHasIcon: NDropdownMenu.showIconRef,
@@ -219,12 +223,10 @@ export default defineComponent({
     const builtinProps: HTMLAttributes = {
       class: [
         `${clsPrefix}-dropdown-option-body`,
-        {
-          [`${clsPrefix}-dropdown-option-body--pending`]: this.pending,
-          [`${clsPrefix}-dropdown-option-body--active`]: this.active,
-          [`${clsPrefix}-dropdown-option-body--child-active`]: this.childActive,
-          [`${clsPrefix}-dropdown-option-body--disabled`]: this.mergedDisabled
-        }
+        this.pending && `${clsPrefix}-dropdown-option-body--pending`,
+        this.active && `${clsPrefix}-dropdown-option-body--active`,
+        this.childActive && `${clsPrefix}-dropdown-option-body--child-active`,
+        this.mergedDisabled && `${clsPrefix}-dropdown-option-body--disabled`
       ],
       onMousemove: this.handleMouseMove,
       onMouseenter: this.handleMouseEnter,
@@ -235,7 +237,7 @@ export default defineComponent({
       <div class={`${clsPrefix}-dropdown-option`}>
         {h('div', mergeProps(builtinProps as any, props as any), [
           <div
-            __dropdown-option
+            data-dropdown-option
             class={[
               `${clsPrefix}-dropdown-option-body__prefix`,
               siblingHasIcon &&
@@ -245,16 +247,16 @@ export default defineComponent({
             {[renderIcon ? renderIcon(rawNode) : render(rawNode.icon)]}
           </div>,
           <div
-            __dropdown-option
+            data-dropdown-option
             class={`${clsPrefix}-dropdown-option-body__label`}
           >
-            {/* TODO: Workaround, menu campatible */}
+            {/* TODO: Workaround, menu compatible */}
             {renderLabel
               ? renderLabel(rawNode)
-              : render(rawNode.label ?? rawNode.title)}
+              : render(rawNode[this.labelField] ?? rawNode.title)}
           </div>,
           <div
-            __dropdown-option
+            data-dropdown-option
             class={[
               `${clsPrefix}-dropdown-option-body__suffix`,
               siblingHasSubmenu &&

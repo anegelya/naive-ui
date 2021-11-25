@@ -12,12 +12,13 @@ size
 checkable
 shape
 color
+avatar
 rtl-debug
 ```
 
-## Props
+## API
 
-### Tag
+### Tag Props
 
 | 名称 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
@@ -30,11 +31,12 @@ rtl-debug
 | round | `boolean` | `false` | 是否圆角 |
 | size | `'small' \| 'medium' \| 'large'` | `'medium'` | 尺寸 |
 | type | `'default' \| 'primary' \| 'info' \| 'success' \| 'warning' \| 'error'` | `'default'` | 类型 |
-| on-click | `(e: MouseEvent) => void` | `undefined` | 点击关闭时的回调 |
+| on-close | `(e: MouseEvent) => void` | `undefined` | 点击关闭时的回调 |
 | on-update:checked | `(value: boolean) => void` | `undefined` | 选择状态更改时的回调 |
 
-## Slots
+### Tag Slots
 
 | 名称    | 参数 | 说明     |
 | ------- | ---- | -------- |
+| avatar  | `()` | 图片信息 |
 | default | `()` | 标签内容 |

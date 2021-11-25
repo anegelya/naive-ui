@@ -19,7 +19,7 @@ import {
 import { clickoutside } from 'vdirs'
 import { dialogPropKeys } from '../../dialog/src/Dialog'
 import { cardBasePropKeys } from '../../card/src/Card'
-import { NScrollbar, ScrollbarInst } from '../../scrollbar'
+import { NScrollbar, ScrollbarInst } from '../../_internal'
 import { NDialog } from '../../dialog'
 import { NCard } from '../../card'
 import { getFirstSlotVNode, keep, warn } from '../../_utils'
@@ -66,7 +66,8 @@ export default defineComponent({
     onClose: {
       type: Function,
       required: true
-    }
+    },
+    onAfterEnter: Function as PropType<() => void>
   },
   setup (props) {
     const bodyRef = ref<HTMLElement | ComponentPublicInstance | null>(null)
@@ -80,6 +81,9 @@ export default defineComponent({
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const NModal = inject(modalInjectionKey)!
     function styleTransformOrigin (): string {
+      if (NModal.transformOriginRef.value === 'center') {
+        return ''
+      }
       const { value: transformOriginX } = transformOriginXRef
       const { value: transformOriginY } = transformOriginYRef
       if (transformOriginX === null || transformOriginY === null) {
@@ -91,6 +95,9 @@ export default defineComponent({
       return ''
     }
     function syncTransformOrigin (el: HTMLElement): void {
+      if (NModal.transformOriginRef.value === 'center') {
+        return
+      }
       const mousePosition = NModal.getMousePosition()
       if (!mousePosition) {
         return
@@ -198,6 +205,7 @@ export default defineComponent({
                     name="fade-in-scale-up-transition"
                     appear={this.appear ?? this.isMounted}
                     onEnter={handleEnter as any}
+                    onAfterEnter={this.onAfterEnter}
                     onAfterLeave={handleAfterLeave}
                     onBeforeLeave={handleBeforeLeave as any}
                   >

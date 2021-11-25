@@ -35,7 +35,8 @@ export const self = (vars: ThemeCommonVars) => {
     textColor2,
     primaryColorHover,
     textColor1,
-    fontSize
+    fontSize,
+    dividerColor
   } = vars
   return {
     borderRadius: borderRadius,
@@ -52,7 +53,8 @@ export const self = (vars: ThemeCommonVars) => {
     itemIconColorActive: primaryColor,
     itemIconColorChildActive: primaryColor,
     itemIconColorCollapsed: textColor1,
-    arrowColor: primaryColor,
+    itemHeight: '42px',
+    arrowColor: textColor2,
     arrowColorHover: primaryColorHover,
     arrowColorChildActive: primaryColor,
     arrowColorActive: primaryColor,
@@ -61,6 +63,7 @@ export const self = (vars: ThemeCommonVars) => {
     itemColorActiveCollapsedInverted: primaryColor,
     borderColorHorizontal: '#0000',
     fontSize,
+    dividerColor,
     ...createPartialInvertedVars('#BBB', '#FFF', '#AAA')
   }
 }

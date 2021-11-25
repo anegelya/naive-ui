@@ -12,13 +12,14 @@ bordered
 size
 single-column
 single-line
+striped
 ```
 
 ## Components
 
 你可以使用 `n-table`、`n-thead`、`n-tbody`、`n-tr`、`n-th` 和 `n-td`。多数情况下你不需要使用后面的组件，他们可以用来减少依赖收集的粒度。
 
-## Props
+## API
 
 ### Table Props
 
@@ -29,3 +30,4 @@ single-line
 | single-column | `boolean` | `false` | 是否展示为一列（`true` 时每一列都有 `border-right`） |
 | single-line | `boolean` | `true` | 是否展示为一行（`true` 时每一行都有 `border-bottom`） |
 | size | `'small' \| 'medium' \| 'large'` | `'medium'` | 表格尺寸大小 |
+| striped | `boolean` | `false` | 是否使用斑马线条纹 |

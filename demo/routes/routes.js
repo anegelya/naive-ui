@@ -29,6 +29,10 @@ export const enDocRoutes = [
     component: () => import('../pages/docs/customize-theme/enUS/index.md')
   },
   {
+    path: 'community',
+    component: () => import('../pages/docs/community/enUS/index.md')
+  },
+  {
     path: 'i18n',
     component: () => import('../pages/docs/i18n/enUS/index.md')
   },
@@ -87,6 +91,10 @@ export const zhDocRoutes = [
   {
     path: 'customize-theme',
     component: () => import('../pages/docs/customize-theme/zhCN/index.md')
+  },
+  {
+    path: 'community',
+    component: () => import('../pages/docs/community/zhCN/index.md')
   },
   {
     path: 'i18n',
@@ -462,6 +470,16 @@ export const enComponentRoutes = [
   {
     path: 'carousel',
     component: () => import('../../src/carousel/demos/enUS/index.demo-entry.md')
+  },
+  {
+    path: 'collapse-transition',
+    component: () =>
+      import('../../src/collapse-transition/demos/enUS/index.demo-entry.md')
+  },
+  {
+    path: 'scrollbar',
+    component: () =>
+      import('../../src/scrollbar/demos/enUS/index.demo-entry.md')
   }
 ]
 
@@ -801,6 +819,16 @@ export const zhComponentRoutes = [
   {
     path: 'carousel',
     component: () => import('../../src/carousel/demos/zhCN/index.demo-entry.md')
+  },
+  {
+    path: 'collapse-transition',
+    component: () =>
+      import('../../src/collapse-transition/demos/zhCN/index.demo-entry.md')
+  },
+  {
+    path: 'scrollbar',
+    component: () =>
+      import('../../src/scrollbar/demos/zhCN/index.demo-entry.md')
   }
 ]
 

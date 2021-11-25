@@ -15,7 +15,7 @@ export default defineComponent({
       required: true
     }
   },
-  setup (props) {
+  setup () {
     const {
       showIconRef,
       hasSubmenuRef
@@ -23,9 +23,10 @@ export default defineComponent({
     } = inject(dropdownMenuInjectionKey)!
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const { renderLabelRef } = inject(dropdownInjectionKey)!
+    const { renderLabelRef, labelFieldRef } = inject(dropdownInjectionKey)!
 
     return {
+      labelField: labelFieldRef,
       showIcon: showIconRef,
       hasSubmenu: hasSubmenuRef,
       renderLabel: renderLabelRef
@@ -40,7 +41,7 @@ export default defineComponent({
           class={`${clsPrefix}-dropdown-option-body ${clsPrefix}-dropdown-option-body--group`}
         >
           <div
-            __dropdown-option
+            data-dropdown-option
             class={[
               `${clsPrefix}-dropdown-option-body__prefix`,
               showIcon && `${clsPrefix}-dropdown-option-body__prefix--show-icon`
@@ -50,11 +51,11 @@ export default defineComponent({
           </div>
           <div
             class={`${clsPrefix}-dropdown-option-body__label`}
-            __dropdown-option
+            data-dropdown-option
           >
             {renderLabel
               ? renderLabel(rawNode)
-              : render(rawNode.label ?? rawNode.title)}
+              : render(rawNode.title ?? rawNode[this.labelField])}
           </div>
           <div
             class={[
@@ -62,7 +63,7 @@ export default defineComponent({
               hasSubmenu &&
                 `${clsPrefix}-dropdown-option-body__suffix--has-submenu`
             ]}
-            __dropdown-option
+            data-dropdown-option
           />
         </div>
       </div>

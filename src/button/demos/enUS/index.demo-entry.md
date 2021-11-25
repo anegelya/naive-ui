@@ -6,6 +6,9 @@ Button is used to trigger some actions.
 
 ```demo
 basic
+secondary
+tertiary
+quaternary
 dashed
 size
 text
@@ -21,7 +24,7 @@ group
 icon-button
 ```
 
-## Props
+## API
 
 ### Button Props
 
@@ -37,22 +40,24 @@ icon-button
 | ghost | `boolean` | `false` | Whether the button is ghost. |
 | icon-placement | `'left' \| 'right'` | `'left'` | The position of the icon in the button. |
 | keyboard | `boolean` | `true` | Whether is supports keyboard operation. |
+| quaternary | `boolean` | `false` | Whether the button is quaternary button. |
 | loading | `boolean` | `false` | Whether the button shows the loading status. |
 | round | `boolean` | `false` | Whether the button shows rounded corners. |
+| secondary | `boolean` | `false` | Whether the button is secondary button. |
 | size | `'tiny' \| 'small' \| 'medium' \| 'large'` | `'medium'` | Button size. |
+| strong | `boolean` | `false` | Whether to use strong text in the button. |
+| tertiary | `boolean` | `false` | Whether the button is tertiary button. |
 | text | `boolean` | `false` | Whether to display as a text button. |
 | text-color | `string` | `undefined` | Button text color (support `#FFF`, `#FFFFFF`, `yellow`,`rgb(0, 0, 0)` formatted colors). |
 | type | `'default' \| 'primary' \| 'success' \| 'info' \| 'warning' \| 'error'` | `'default'` | Button type. |
 | tag | `string` | `'button'` | What tag need the button be rendered as. |
 
-### Button Group Props
+### ButtonGroup Props
 
 | Name | Type | Default | Description |
 | --- | --- | --- | --- |
 | size | `'tiny' \| 'small' \| 'medium' \| 'large'` | `undefined` | The buttons' size in button group. If set, the button's size prop inner group won't work. |
 | vertical | `boolean` | `false` | Directions of buttons in the group. |
-
-## Slots
 
 ### Button Slots
 
@@ -61,7 +66,7 @@ icon-button
 | default | `()`       | The default content of the button. |
 | icon    | `()`       | The icon of the button.            |
 
-### Button Group Slots
+### ButtonGroup Slots
 
 | Name    | Parameters | Description                            |
 | ------- | ---------- | -------------------------------------- |

@@ -43,6 +43,10 @@ const modalProps = {
     type: String as PropType<'if' | 'show'>,
     default: 'if'
   },
+  transformOrigin: {
+    type: String as PropType<'center' | 'mouse'>,
+    default: 'mouse'
+  },
   ...presetProps,
   // events
   'onUpdate:show': [Function, Array] as PropType<
@@ -51,6 +55,7 @@ const modalProps = {
   onUpdateShow: [Function, Array] as PropType<
   MaybeArray<(value: boolean) => void>
   >,
+  onAfterEnter: Function as PropType<() => void>,
   onBeforeLeave: Function as PropType<() => void>,
   onAfterLeave: Function as PropType<() => void>,
   onClose: Function as PropType<() => Promise<boolean> | boolean | any>,
@@ -195,7 +200,8 @@ export default defineComponent({
       mergedClsPrefixRef,
       mergedThemeRef: themeRef,
       isMountedRef,
-      appearRef: toRef(props, 'appear')
+      appearRef: toRef(props, 'appear'),
+      transformOriginRef: toRef(props, 'transformOrigin')
     })
     return {
       mergedClsPrefix: mergedClsPrefixRef,
@@ -269,6 +275,7 @@ export default defineComponent({
                   onNegativeClick={this.handleNegativeClick}
                   onPositiveClick={this.handlePositiveClick}
                   onBeforeLeave={this.handleBeforeLeave}
+                  onAfterEnter={this.onAfterEnter}
                   onAfterLeave={this.handleAfterLeave}
                   onClickoutside={this.handleClickoutside}
                 >

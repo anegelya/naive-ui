@@ -12,7 +12,7 @@ import {
   Ref,
   mergeProps
 } from 'vue'
-import { createTreeMate, Key, TreeMateOptions, TreeNode } from 'treemate'
+import { createTreeMate, Key, TreeNode } from 'treemate'
 import { useMergedState, useKeyboard, useMemo } from 'vooks'
 import { FollowerPlacement } from 'vueuc'
 import type { InternalRenderBody } from '../../popover/src/interface'
@@ -34,10 +34,11 @@ import type { DropdownTheme } from '../styles'
 import NDropdownMenu from './DropdownMenu'
 import style from './styles/index.cssr'
 import {
-  DropdownGroupOption,
-  DropdownIgnoredOption,
   DropdownOption,
+  DropdownRenderOption,
+  DropdownGroupOption,
   DropdownMixedOption,
+  DropdownIgnoredOption,
   OnUpdateValue,
   OnUpdateValueImpl,
   RenderLabel,
@@ -45,22 +46,6 @@ import {
   RenderLabelImpl,
   RenderIconImpl
 } from './interface'
-
-const treemateOptions: TreeMateOptions<
-DropdownOption,
-DropdownGroupOption,
-DropdownIgnoredOption
-> = {
-  getKey (node) {
-    return node.key
-  },
-  getDisabled (node) {
-    return node.disabled === true
-  },
-  getIgnored (node) {
-    return node.type === 'divider'
-  }
-}
 
 export interface DropdownInjection {
   renderLabelRef: Ref<RenderLabelImpl | undefined>
@@ -72,6 +57,8 @@ export interface DropdownInjection {
   activeKeyPathRef: Ref<Key[]>
   animatedRef: Ref<boolean>
   mergedShowRef: Ref<boolean>
+  labelFieldRef: Ref<string>
+  childrenFieldRef: Ref<string>
   doSelect: OnUpdateValueImpl
   doUpdateShow: (value: boolean) => void
 }
@@ -103,10 +90,22 @@ const dropdownBaseProps = {
     default: () => []
   },
   showArrow: Boolean,
-  // for menu, not documented
-  value: [String, Number] as PropType<Key | null>,
   renderLabel: Function as PropType<RenderLabel>,
-  renderIcon: Function as PropType<RenderIcon>
+  renderIcon: Function as PropType<RenderIcon>,
+  labelField: {
+    type: String,
+    default: 'label'
+  },
+  keyField: {
+    type: String,
+    default: 'key'
+  },
+  childrenField: {
+    type: String,
+    default: 'children'
+  },
+  // for menu, not documented
+  value: [String, Number] as PropType<Key | null>
 } as const
 
 const popoverPropKeys = Object.keys(popoverBaseProps) as Array<
@@ -132,11 +131,25 @@ export default defineComponent({
       uncontrolledShowRef
     )
     const treemateRef = computed(() => {
+      const { keyField, childrenField } = props
       return createTreeMate<
-      DropdownOption,
+      DropdownOption | DropdownRenderOption,
       DropdownGroupOption,
       DropdownIgnoredOption
-      >(props.options, treemateOptions)
+      >(props.options, {
+        getKey (node) {
+          return node[keyField] as any
+        },
+        getDisabled (node) {
+          return node.disabled === true
+        },
+        getIgnored (node) {
+          return node.type === 'divider' || node.type === 'render'
+        },
+        getChildren (node) {
+          return node[childrenField] as any
+        }
+      })
     })
     const tmNodesRef = computed(() => {
       return treemateRef.value.treeNodes
@@ -206,6 +219,8 @@ export default defineComponent({
     )
 
     provide(dropdownInjectionKey, {
+      labelFieldRef: toRef(props, 'labelField'),
+      childrenFieldRef: toRef(props, 'childrenField'),
       renderLabelRef: toRef(props, 'renderLabel') as Ref<
       RenderLabelImpl | undefined
       >,

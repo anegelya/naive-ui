@@ -10,13 +10,15 @@ import {
   InjectionKey,
   CSSProperties,
   inject,
-  VNodeChild
+  VNodeChild,
+  watchEffect
 } from 'vue'
 import { createTreeMate, Key } from 'treemate'
 import { useCompitable, useMergedState } from 'vooks'
 import { useConfig, useTheme } from '../../_mixins'
 import type { ThemeProps } from '../../_mixins'
-import { call, MaybeArray, warn } from '../../_utils'
+import { call } from '../../_utils'
+import type { MaybeArray } from '../../_utils'
 import { itemRenderer } from './utils'
 import { menuLight } from '../styles'
 import type { MenuTheme } from '../styles'
@@ -25,6 +27,8 @@ import style from './styles/index.cssr'
 import {
   MenuOption,
   MenuGroupOption,
+  MenuIgnoredOption,
+  MenuMixedOption,
   OnUpdateValue,
   OnUpdateKeys,
   OnUpdateValueImpl,
@@ -32,22 +36,14 @@ import {
 } from './interface'
 import { layoutSiderInjectionKey } from '../../layout/src/interface'
 import { FollowerPlacement } from 'vueuc'
+import { useCheckDeprecated } from './useCheckDeprecated'
+import { DropdownProps } from '../../dropdown'
 
 const menuProps = {
   ...(useTheme.props as ThemeProps<MenuTheme>),
   options: {
-    type: Array as PropType<Array<MenuOption | MenuGroupOption>>,
+    type: Array as PropType<MenuMixedOption[]>,
     default: () => []
-  },
-  items: {
-    type: Array as PropType<Array<MenuOption | MenuGroupOption> | undefined>,
-    validator: () => {
-      if (__DEV__) {
-        warn('menu', '`items` is deprecated, please use `options` instead.')
-      }
-      return true
-    },
-    default: undefined
   },
   collapsed: {
     type: Boolean as PropType<boolean | undefined>,
@@ -70,12 +66,21 @@ const menuProps = {
     type: Number,
     default: 32
   },
+  labelField: {
+    type: String,
+    default: 'label'
+  },
+  keyField: {
+    type: String,
+    default: 'key'
+  },
+  childrenField: {
+    type: String,
+    default: 'children'
+  },
   defaultExpandAll: Boolean,
   defaultExpandedKeys: Array as PropType<Key[]>,
-  expandedKeys: {
-    type: Array as PropType<Key[]>,
-    default: undefined
-  },
+  expandedKeys: Array as PropType<Key[]>,
   value: [String, Number] as PropType<Key | null>,
   defaultValue: {
     type: [String, Number] as PropType<Key | null>,
@@ -85,6 +90,10 @@ const menuProps = {
     type: String as PropType<'vertical' | 'horizontal'>,
     default: 'vertical'
   },
+  watchProps: {
+    type: Array as PropType<Array<'defaultExpandedKeys' | 'defaultValue'>>,
+    default: undefined
+  },
   disabled: Boolean,
   inverted: Boolean,
   'onUpdate:expandedKeys': [Function, Array] as PropType<
@@ -93,63 +102,7 @@ const menuProps = {
   onUpdateExpandedKeys: [Function, Array] as PropType<MaybeArray<OnUpdateKeys>>,
   onUpdateValue: [Function, Array] as PropType<MaybeArray<OnUpdateValue>>,
   'onUpdate:value': [Function, Array] as PropType<MaybeArray<OnUpdateValue>>,
-  // deprecated
-  onOpenNamesChange: {
-    type: [Function, Array] as PropType<MaybeArray<OnUpdateKeys>>,
-    validator: () => {
-      warn(
-        'menu',
-        '`on-open-names-change` is deprecated, please use `on-update:expanded-keys` instead.'
-      )
-      return true
-    },
-    default: undefined
-  },
-  onSelect: {
-    type: [Function, Array] as PropType<MaybeArray<OnUpdateValue>>,
-    validator: () => {
-      warn(
-        'menu',
-        '`on-select` is deprecated, please use `on-update:value` instead.'
-      )
-      return true
-    },
-    default: undefined
-  },
-  onExpandedNamesChange: {
-    type: [Function, Array] as PropType<MaybeArray<OnUpdateKeys>>,
-    validator: () => {
-      warn(
-        'menu',
-        '`on-expanded-names-change` is deprecated, please use `on-update:expanded-keys` instead.'
-      )
-      return true
-    },
-    default: undefined
-  },
   expandIcon: Function as PropType<(option: MenuOption) => VNodeChild>,
-  expandedNames: {
-    type: Array as PropType<Key[]>,
-    validator: () => {
-      warn(
-        'menu',
-        '`expanded-names` is deprecated, please use `expanded-keys` instead.'
-      )
-      return true
-    },
-    default: undefined
-  },
-  defaultExpandedNames: {
-    type: Array as PropType<Key[]>,
-    validator: () => {
-      warn(
-        'menu',
-        '`default-expanded-names` is deprecated, please use `default-expanded-keys` instead.'
-      )
-      return true
-    },
-    default: undefined
-  },
   renderIcon: Function as PropType<(option: MenuOption) => VNodeChild>,
   renderLabel: Function as PropType<
   (option: MenuOption | MenuGroupOption) => VNodeChild
@@ -157,11 +110,22 @@ const menuProps = {
   renderExtra: Function as PropType<
   (option: MenuOption | MenuGroupOption) => VNodeChild
   >,
+  /** TODO: deprecate it */
   dropdownPlacement: {
     type: String as PropType<FollowerPlacement>,
     default: 'bottom'
   },
-  accordion: Boolean
+  dropdownProps: Object as PropType<DropdownProps>,
+  accordion: Boolean,
+  // deprecated
+  items: Array as PropType<Array<MenuOption | MenuGroupOption>>,
+  onOpenNamesChange: [Function, Array] as PropType<MaybeArray<OnUpdateKeys>>,
+  onSelect: [Function, Array] as PropType<MaybeArray<OnUpdateValue>>,
+  onExpandedNamesChange: [Function, Array] as PropType<
+  MaybeArray<OnUpdateKeys>
+  >,
+  expandedNames: Array as PropType<Key[]>,
+  defaultExpandedNames: Array as PropType<Key[]>
 } as const
 
 export type MenuSetupProps = ExtractPropTypes<typeof menuProps>
@@ -174,6 +138,9 @@ export default defineComponent({
   name: 'Menu',
   props: menuProps,
   setup (props) {
+    if (__DEV__) {
+      useCheckDeprecated(props)
+    }
     const { mergedClsPrefixRef } = useConfig(props)
     const themeRef = useTheme(
       'Menu',
@@ -198,34 +165,54 @@ export default defineComponent({
       return false
     })
 
-    const treeMateRef = computed(() =>
-      createTreeMate<MenuOption, MenuGroupOption>(
+    const treeMateRef = computed(() => {
+      const { keyField, childrenField } = props
+      return createTreeMate<MenuOption, MenuGroupOption, MenuIgnoredOption>(
         props.items || props.options,
         {
+          getChildren (node) {
+            return node[childrenField]
+          },
           getKey (node) {
-            return node.key ?? node.name
+            return (node[keyField] as Key) ?? node.name
           }
         }
       )
+    })
+    const treeKeysLevelOneRef = computed(
+      () => new Set(treeMateRef.value.treeNodes.map((e) => e.key))
     )
-    const treeKeysLevelOneRef = computed(() => new Set(treeMateRef.value.treeNodes.map(e => e.key)))
 
-    const uncontrolledValueRef = ref(props.defaultValue)
+    const { watchProps } = props
+
+    const uncontrolledValueRef = ref<Key | null>(null)
+    if (watchProps?.includes('defaultValue')) {
+      watchEffect(() => {
+        uncontrolledValueRef.value = props.defaultValue
+      })
+    } else {
+      uncontrolledValueRef.value = props.defaultValue
+    }
     const controlledValueRef = toRef(props, 'value')
     const mergedValueRef = useMergedState(
       controlledValueRef,
       uncontrolledValueRef
     )
-
-    const uncontrolledExpandedKeysRef = ref(
-      props.defaultExpandAll
+    const uncontrolledExpandedKeysRef = ref<Key[]>([])
+    const initUncontrolledExpandedKeys = (): void => {
+      uncontrolledExpandedKeysRef.value = props.defaultExpandAll
         ? treeMateRef.value.getNonLeafKeys()
         : props.defaultExpandedNames ||
-            props.defaultExpandedKeys ||
-            treeMateRef.value.getPath(mergedValueRef.value, {
-              includeSelf: false
-            }).keyPath
-    )
+          props.defaultExpandedKeys ||
+          treeMateRef.value.getPath(mergedValueRef.value, {
+            includeSelf: false
+          }).keyPath
+    }
+    if (watchProps?.includes('defaultExpandedKeys')) {
+      watchEffect(initUncontrolledExpandedKeys)
+    } else {
+      initUncontrolledExpandedKeys()
+    }
     const controlledExpandedKeysRef = useCompitable(props, [
       'expandedNames',
       'expandedKeys'
@@ -300,8 +287,12 @@ export default defineComponent({
       } else {
         if (props.accordion) {
           if (treeKeysLevelOneRef.value.has(key)) {
-            const closeKeyIndex = currentExpandedKeys.findIndex(e => treeKeysLevelOneRef.value.has(e))
-            if (closeKeyIndex > -1) { currentExpandedKeys.splice(closeKeyIndex, 1) }
+            const closeKeyIndex = currentExpandedKeys.findIndex((e) =>
+              treeKeysLevelOneRef.value.has(e)
+            )
+            if (closeKeyIndex > -1) {
+              currentExpandedKeys.splice(closeKeyIndex, 1)
+            }
           }
         }
         currentExpandedKeys.push(key)
@@ -325,12 +316,20 @@ export default defineComponent({
           common: { cubicBezierEaseInOut },
           self
         } = themeRef.value
-        const { borderRadius, borderColorHorizontal, fontSize } = self
+        const {
+          borderRadius,
+          borderColorHorizontal,
+          fontSize,
+          itemHeight,
+          dividerColor
+        } = self
         const vars: any = {
+          '--divider-color': dividerColor,
           '--bezier': cubicBezierEaseInOut,
           '--font-size': fontSize,
           '--border-color-horizontal': borderColorHorizontal,
-          '--border-radius': borderRadius
+          '--border-radius': borderRadius,
+          '--item-height': itemHeight
         }
         if (inverted) {
           vars['--group-text-color'] = self.groupTextColorInverted
@@ -390,7 +389,7 @@ export default defineComponent({
         ]}
         style={this.cssVars as CSSProperties}
       >
-        {this.tmNodes.map((tmNode) => itemRenderer(tmNode))}
+        {this.tmNodes.map((tmNode) => itemRenderer(tmNode, this.$props))}
       </div>
     )
   }

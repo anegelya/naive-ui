@@ -19,12 +19,14 @@ size
 row-props
 merge-cell
 filter-and-sorter
+multiple-sorter
 select
 custom-select
 group-header
 controlled-page
 controlled-filter
 controlled-sorter
+controlled-multiple-sorter
 fixed-header
 fixed-header-column
 summary
@@ -38,7 +40,9 @@ virtual
 custom-filter-menu
 tree
 flex-height
+fixed-column-debug
 scroll-debug
+striped
 ```
 
 ## API
@@ -61,7 +65,7 @@ scroll-debug
 | loading | `boolean` | `false` | 是否显示 loading 状态 |
 | max-height | `number \| string` | `undefined` | 表格内容的最大高度，可以是 CSS 属性值 |
 | min-height | `number \| string` | `undefined` | 表格内容的最低高度，可以是 CSS 属性值 |
-| pagination | `false \| object` | `false` | 属性参考 [Pagination props](pagination#Props) |
+| pagination | `false \| object` | `false` | 属性参考 [Pagination props](pagination#Pagination-Props) |
 | remote | `boolean` | `false` | 表格是否自动分页数据，在异步的状况下你可能需要把它设为 `true` |
 | row-class-name | `string \| (rowData: object, index : number) => string \| object` | `undefined` | 每一行上的类名 |
 | row-key | `(rowData: object) => (number \| string)` | `undefined` | 通过行数据创建行的 key（如果你不想给每一行加上 key） |
@@ -70,14 +74,15 @@ scroll-debug
 | single-column | `boolean` | `false` | 列内容是否为一个整体，当参数为`true`时，则没有`border-bottom` |
 | single-line | `boolean` | `true` | 行内容是否为一个整体，当参数值为`true`时，则没有`border-right` |
 | size | `'small' \| 'medium' \| 'large'` | `'medium'` | 表格的尺寸 |
+| striped | `boolean` | `false` | 是否使用斑马线条纹 |
 | summary | `DataTableCreateSummary` | `undefined` | 表格总结栏的数据，类型见 <n-a href="#DataTableCreateSummary-Type">DataTableCreateSummary Type</n-a> |
 | table-layout | `'auto' \| 'fixed'` | `'auto'` | 表格的 `table-layout` 样式属性，在设定 `ellipsis` 或 `max-height` 的情况下固定为 `'fixed'` |
-| virtual-scroll | `boolean` | `false` | 是否开启虚拟滚动，应对大规模数据，开启前请设定好 `max-height` |
+| virtual-scroll | `boolean` | `false` | 是否开启虚拟滚动，应对大规模数据，开启前请设定好 `max-height`。当 `virtual-scroll` 为 `true` 时，`rowSpan` 将不生效 |
 | on-update:checked-row-keys | `(keys: Array<string \| number>) => void` | `undefined` | checked-row-keys 值改变时触发的回调函数 |
 | on-update:filters | `(filters: { [string \| number]: Array<string \| number> \| string \| number }, initiatorColumn: DataTableColumn)` | `undefined` | filters 数据改变时触发的回调函数 |
 | on-update:page | `(page: number)` | `undefined` | page 改变时触发的回调函数 |
 | on-update:page-size | `(pageSize: number) => void` | `undefined` | page-size 改变时触发的回调函数 |
-| on-update:sorter | `(options: { columnKey: string \| number, sorter: 'default' \| function \| boolean, order: 'ascend' \| 'descend' \| false } \| null) => void` | `undefined` | 如果在变动后没有激活的排序，那么 `options` 为 `null` |
+| on-update:sorter | `(options: SortState \| SortState[] \| null) => void` | `undefined` | 如果变动列为多列排序则返回 `SortState[] \| null` 否则返回 `SortState \| null`，类型见 <n-a href="#SortState-Type">SortState Type</n-a> |
 
 #### DataTableColumn Properties
 
@@ -92,7 +97,7 @@ scroll-debug
 | defaultSortOrder | `'descend' \| 'ascend' \| false` | `false` | 非受控状态下表格默认的排序方式 |
 | disabled | `(rowData: object, rowIndex: number) => boolean` | `undefined` | 是否禁用 |
 | ellipsis | `boolean \| EllipsisProps` | `false` | 文本溢出的设置 |
-| expandable | `(rowData: object, rowIndex: number) => boolean` | `undefined` | 行是否可展开，仅在 `type` 为 `'expand'` 时生效 |
+| expandable | `(rowData: object) => boolean` | `undefined` | 行是否可展开，仅在 `type` 为 `'expand'` 时生效 |
 | filter | `boolean \| (optionValue: string \| number, rowData: object) => boolean \| 'default'` | `undefined` | 这一列的过滤方法。如果设为 `true`，表格将只会在这列展示一个排序图标，在异步的时候可能有用。 |
 | filterMode | `'and' \| 'or'` | `'or'` | 同一列筛选方式为与还是或 |
 | filterMultiple | `boolean` | `true` | 同一列是否可以筛选多个 |
@@ -135,6 +140,16 @@ type DataTableCreateSummary = (
         rowSpan?: number
       }
     }
+```
+
+#### SortState Type
+
+```__ts
+type SortState = {
+  columnKey: string | number,
+  sorter: 'default' | function | boolean,
+  order: 'ascend' | 'descend' \ false
+}
 ```
 
 ### DataTable Methods

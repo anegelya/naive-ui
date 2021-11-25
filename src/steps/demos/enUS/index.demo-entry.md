@@ -14,7 +14,7 @@ content
 custom-icon
 ```
 
-## Props
+## API
 
 ### Steps Props
 
@@ -33,8 +33,6 @@ custom-icon
 | status | `'process' \| 'finish' \| 'error' \| 'wait'` | `undefined` | Step status. |
 | title | `string` | `undefined` | Step title. |
 
-## Slots
-
 ### Steps Slots
 
 | Name        | Parameters | Description                      |
@@ -48,3 +46,4 @@ custom-icon
 | Name    | Parameters | Description   |
 | ------- | ---------- | ------------- |
 | default | `()`       | Step content. |
+| title   | `()`       | Step title.   |

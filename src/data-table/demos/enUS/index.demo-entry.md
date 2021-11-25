@@ -19,12 +19,14 @@ size
 row-props
 merge-cell
 filter-and-sorter
+multiple-sorter
 select
 custom-select
 group-header
 controlled-page
 controlled-filter
 controlled-sorter
+controlled-multiple-sorter
 fixed-header
 fixed-header-column
 summary
@@ -38,6 +40,7 @@ virtual
 custom-filter-menu
 tree
 flex-height
+striped
 ```
 
 ## API
@@ -60,7 +63,7 @@ flex-height
 | loading | `boolean` | `false` | Whether to display loading status. |
 | max-height | `number \| string` | `undefined` | The max-height of the table content. Can be a CSS value. |
 | min-height | `number \| string` | `undefined` | The min-height of the table content. Can be a CSS value. |
-| pagination | `false \| object` | `false` | See [Pagination props](pagination#Props) |
+| pagination | `false \| object` | `false` | See [Pagination props](pagination#Pagination-Props) |
 | remote | `boolean` | `false` | If data-table do automatic paging. You may set it to `false` in async usage. |
 | row-class-name | `string \| (rowData: object, rowIndex : number) => string \| object` | `undefined` | Class name of each row. |
 | row-key | `(rowData: object) => (number \| string)` | `undefined` | Generate the key of the row by row data (if you don't want to set the key). |
@@ -69,14 +72,15 @@ flex-height
 | single-column | `boolean` | `false` | Whether the column content is a whole, when the parameter is `true`, there is no `border-bottom`. |
 | single-line | `boolean` | `true` | Whether the line content is a whole, when the parameter value is `true`, there is no `border-right`. |
 | size | `'small' \| 'medium' \| 'large'` | `'medium'` | Table size. |
+| striped | `boolean` | `false` | Whether to show zebra stripes on rows. |
 | summary | `DataTableCreateSummary` | `undefined` | Data of table summary row. For types, see <n-a href="#DataTableCreateSummary-Type">DataTableCreateSummary Type</n-a>. |
 | table-layout | `'auto' \| 'fixed'` | `'auto'` | Style `table-layout` of the table. When `ellipsis` or `max-height` or `flex-height` are set, it will always be `'fixed'` regardless of what you set. |
-| virtual-scroll | `boolean` | `false` | Whether to use virtual scroll to deal with large data. Make sure `max-height` is set before using it. |
+| virtual-scroll | `boolean` | `false` | Whether to use virtual scroll to deal with large data. Make sure `max-height` is set before using it. When `virtual-scroll` is `true`, `rowSpan` will not take effect. |
 | on-update:checked-row-keys | `(keys: Array<string \| number>) => void` | `undefined` | The callback function triggered when the checked-row-keys value changes. |
 | on-update:filters | `(filters: { [string \| number]: Array<string \| number> \| string \| number }, initiatorColumn: DataTableColumn)` | `undefined` | The callback function triggered when the filters data changes. |
 | on-update:page | `(page: number)` | `undefined` | Callback function triggered when the page changes. |
 | on-update:page-size | `(pageSize: number) => void` | `undefined` | Callback function triggered when the page-size changes. |
-| on-update:sorter | `(options: { columnKey: string \| number, sorter: 'default' \| function \| boolean, order: 'ascend' \| 'descend' \| false } \| null) => void` | `undefined` | If there won't be a active sorter after change, `options` will be `null`. |
+| on-update:sorter | `(options: SortState \| SortState[] \| null) => void` | `undefined` | If the change column is sorted by multiple columns, will return `SortState[] \| null`, otherwise return `SortState \| null`. For types, see <n-a href="#SortState-Type">SorterState Type</n-a>. |
 
 #### DataTableColumn Properties
 
@@ -91,7 +95,7 @@ flex-height
 | defaultSortOrder | `'descend' \| 'ascend' \| false` | `false` | The default sort order of the table in uncontrolled manner. |
 | disabled | `(rowData: object, rowIndex: number) => boolean` | `() => false` | Whether the row is checkable. |
 | ellipsis | `boolean \| EllipsisProps` | `false` | Ellipsis options when content overflows. |
-| expandable | `(rowData: object, rowIndex: number) => boolean` | `undefined` | Whethe the row is expandable. Only works when `type` is `'expand'`. |
+| expandable | `(rowData: object) => boolean` | `undefined` | Whethe the row is expandable. Only works when `type` is `'expand'`. |
 | filter | `boolean \| (optionValue: string \| number, rowData: object) => boolean \| 'default'` | `false` | The filter of the column. If set to `true`, it will only display filter button on the column, which can be used in async status. |
 | filterMode | `'and' \| 'or'` | `'or'` | The filter mode. |
 | filterMultiple | `boolean` | `true` | Can the column filtered by multiple values. |
@@ -134,6 +138,16 @@ type DataTableCreateSummary = (
         rowSpan?: number
       }
     }
+```
+
+#### SortState Type
+
+```__ts
+type SortState = {
+  columnKey: string | number,
+  sorter: 'default' | function | boolean,
+  order: 'ascend' | 'descend' \ false
+}
 ```
 
 ### DataTable Methods

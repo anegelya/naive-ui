@@ -5,6 +5,9 @@ import { NForm, NFormItem } from '../../form'
 
 function expectChecked (wrapper: VueWrapper<any>, value: boolean): void {
   expect(wrapper.classes().some((c) => c.includes('checked'))).toEqual(value)
+  expect(wrapper.find('.n-checkbox').attributes('aria-checked')).toBe(
+    value.toString()
+  )
 }
 
 describe('n-checkbox', () => {
@@ -31,6 +34,51 @@ describe('n-checkbox', () => {
     })
   })
 
+  it('should work with `checked-value` prop', async () => {
+    const onUpdateChecked = jest.fn()
+    const wrapper = mount(NCheckbox, {
+      props: {
+        checkedValue: 'fooo',
+        uncheckedValue: 'barr',
+        onUpdateChecked
+      }
+    })
+    await wrapper.trigger('click')
+    expect(onUpdateChecked.mock.calls[0][0]).toEqual('fooo')
+    await wrapper.trigger('click')
+    expect(onUpdateChecked.mock.calls[1][0]).toEqual('barr')
+    await wrapper.trigger('click')
+    expect(onUpdateChecked.mock.calls[2][0]).toEqual('fooo')
+  })
+
+  it('should work with `checked-value` prop in type layer', () => {
+    const onUpdateChecked1: (value: string) => void = () => {}
+    const onUpdateChecked2: (value: number) => void = () => {}
+    const onUpdateChecked3: (value: boolean) => void = () => {}
+    let _ = (
+      <NCheckbox
+        onUpdateChecked={onUpdateChecked1}
+        checked={'123'}
+        defaultChecked={'123'}
+      />
+    )
+    _ = (
+      <NCheckbox
+        onUpdateChecked={onUpdateChecked2}
+        checked={123}
+        defaultChecked={123}
+      />
+    )
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _ = (
+      <NCheckbox
+        onUpdateChecked={onUpdateChecked3}
+        checked={true}
+        defaultChecked={false}
+      />
+    )
+  })
+
   it('should work with `indeterminate` prop', () => {
     const wrapper = mount(NCheckbox, {
       props: {
@@ -43,6 +91,7 @@ describe('n-checkbox', () => {
     expect(wrapper.find('.n-checkbox').classes()).toContain(
       'n-checkbox--indeterminate'
     )
+    expect(wrapper.find('.n-checkbox').attributes('aria-checked')).toBe('mixed')
   })
 
   it('should work with `disabled` prop', () => {
@@ -136,11 +185,39 @@ describe('n-checkbox', () => {
 
     expect(wrapper.find('.n-checkbox').attributes('style')).toMatchSnapshot()
   })
+
+  describe('accessibility', () => {
+    it('should have a role of "checkbox"', () => {
+      const wrapper = mount(NCheckbox)
+      expect(wrapper.find('.n-checkbox').attributes('role')).toBe('checkbox')
+    })
+
+    it('should set a default aria-labelledby', () => {
+      const labelId = 'custom-id'
+      const wrapper = mount(() => <NCheckbox aria-labelledby={labelId} />)
+      expect(wrapper.find('.n-checkbox').attributes('aria-labelledby')).toMatch(
+        labelId
+      )
+    })
+
+    it('should allow to set aria-labelledby from outside', () => {
+      const wrapper = mount(NCheckbox)
+      const labelId = wrapper.find('.n-checkbox__label').attributes('id')
+      expect(wrapper.find('.n-checkbox').attributes('aria-labelledby')).toBe(
+        labelId
+      )
+    })
+  })
 })
 
 describe('n-checkbox-group', () => {
   it('should work with import on demand', () => {
     mount(NCheckboxGroup)
+  })
+
+  it('should have a role of "group"', () => {
+    const wrapper = mount(NCheckboxGroup)
+    expect(wrapper.find('.n-checkbox-group').attributes('role')).toBe('group')
   })
 
   it('should work with `disabled` prop', () => {

@@ -16,18 +16,17 @@ import NMenuOptionContent from './MenuOptionContent'
 import { itemRenderer } from './utils'
 import { useMenuChild, useMenuChildProps } from './use-menu-child'
 import type { SubmenuInjection } from './use-menu-child'
-import { TreeNode } from 'treemate'
-import { MenuGroupOption, MenuOption, TmNode } from './interface'
+import { MenuMixedOption, TmNode } from './interface'
 import { menuItemGroupInjectionKey } from './MenuOptionGroup'
 
 export const submenuProps = {
   ...useMenuChildProps,
   rawNodes: {
-    type: Array as PropType<Array<MenuOption | MenuGroupOption>>,
+    type: Array as PropType<MenuMixedOption[]>,
     default: () => []
   },
   tmNodes: {
-    type: Array as PropType<Array<TreeNode<MenuOption, MenuGroupOption>>>,
+    type: Array as PropType<TmNode[]>,
     default: () => []
   },
   tmNode: {
@@ -161,7 +160,7 @@ export default defineComponent({
               const { tmNodes, collapsed } = this
               return !collapsed ? (
                 <div class={`${mergedClsPrefix}-submenu-children`} role="menu">
-                  {tmNodes.map((item) => itemRenderer(item))}
+                  {tmNodes.map((item) => itemRenderer(item, this.menuProps))}
                 </div>
               ) : null
             }
@@ -171,6 +170,7 @@ export default defineComponent({
     }
     return this.root ? (
       <NDropdown
+        {...this.menuProps?.dropdownProps}
         builtinThemeOverrides={{
           fontSizeLarge: '14px',
           optionIconSizeLarge: '18px'
@@ -180,6 +180,9 @@ export default defineComponent({
         trigger="hover"
         disabled={!this.dropdownEnabled}
         placement={this.dropdownPlacement}
+        keyField={this.menuProps.keyField}
+        labelField={this.menuProps.labelField}
+        childrenField={this.menuProps.childrenField}
         onUpdateShow={this.handlePopoverShowChange}
         options={this.rawNodes}
         onSelect={this.doSelect}
